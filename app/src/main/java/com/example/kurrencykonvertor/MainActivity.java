@@ -1,12 +1,15 @@
 package com.example.kurrencykonvertor;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<CountryList> myList;
     TextView tv_results;
     Button btn_convert;
+    ImageButton reverse;
     EditText et_amount;
     ForeignExchangeApi foreignExchangeApi;
     String from,to;
@@ -38,12 +42,15 @@ public class MainActivity extends AppCompatActivity {
         tv_results = findViewById(R.id.tv_result);
         btn_convert = findViewById(R.id.convert);
         et_amount = findViewById(R.id.et_amount);
+        reverse = findViewById(R.id.reverse);
 
         fillList();
 
         AutoCompleteAdapter adapter = new AutoCompleteAdapter(this,myList);
         et_from.setAdapter(adapter);
         et_to.setAdapter(adapter);
+
+
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.exchangeratesapi.io/")
@@ -54,6 +61,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 convert();
+            }
+        });
+        reverse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String to_reverse = et_from.getText().toString();
+                String from_reverse = et_to.getText().toString();
+                et_from.setText(from_reverse);
+                et_to.setText(to_reverse);
             }
         });
 
@@ -98,8 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
     void convert()
     {
-     from = et_from.getText().toString().trim().toUpperCase();
-     to = et_to.getText().toString().toUpperCase().trim();
+        from = et_from.getText().toString().trim().toUpperCase();
+        to = et_to.getText().toString().toUpperCase().trim();
+
      amount = Double.parseDouble(et_amount.getText().toString().trim());
         Log.d("___________","from : " +from);
         Log.d("___________","to : " +to);
@@ -121,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                     ForeignExchange foreignExchange = response.body();
                     Rates rates = foreignExchange.getRates();
                     Double i = rates.getcurrcency(to.toUpperCase().trim());
+                    Log.d("+++++++++","i" + i+amount);
                     tv_results.setText("Value : " + result(i,amount));
 
                 }
